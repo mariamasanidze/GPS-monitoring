@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ka" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GPS Monitoring System — ავტოპარკი ერთ რუკაზე</title>
+<meta name="description" content="GPS Monitoring System უერთდება თქვენს არსებულ GPS მოწყობილობებს — ახალი ტექნიკის გარეშე. ყველა მანქანა ერთ დეშბორდზე: ადგილმდებარეობა, საწვავი, მარშრუტები და მძღოლის ქცევა. 1C და SAP ინტეგრაცია." />
+<meta property="og:title" content="GPS Monitoring System — ავტოპარკი ერთ რუკაზე" />
+<meta property="og:description" content="მთელი ავტოპარკი ერთ რუკაზე, რეალურ დროში." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0E17;--bg-1:#0E1421;--bg-2:#131B2B;--bg-3:#1B2436;
+    --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.15);
+    --text:#E9EEF7;--muted:#8A97AD;--muted-2:#5E6A80;
+    --brand:#2E90FF;--brand-2:#1B7BF0;--brand-soft:rgba(46,144,255,.14);--brand-line:rgba(46,144,255,.32);
+    --move:#33D17A;--idle:#F5A524;--off:#71809A;--alert:#FF5D5D;
+    --shadow:0 30px 70px -30px rgba(0,0,0,.75);
+    --shadow-sm:0 14px 40px -22px rgba(0,0,0,.7);
+    --radius:18px;--maxw:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  [id]{scroll-margin-top:92px}
+  h1,h2,h3,p,.lead{overflow-wrap:break-word}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{font-family:"Noto Sans Georgian",system-ui,sans-serif;background:var(--bg);color:var(--muted);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(820px 520px at 82% -8%, rgba(46,144,255,.12), transparent 60%),
+    radial-gradient(680px 460px at -4% 8%, rgba(51,209,122,.06), transparent 58%)}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  section{position:relative;z-index:1}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--brand);color:#04121f}
+
+  h1,h2,h3{color:var(--text);font-weight:800;letter-spacing:-.02em;line-height:1.08}
+  h2{font-size:clamp(1.75rem,3.6vw,2.7rem)}
+  .eyebrow{font-family:"Roboto Mono",monospace;font-size:.73rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--brand);display:inline-flex;align-items:center;gap:.6em}
+  .eyebrow::before{content:"";width:20px;height:2px;background:var(--brand);border-radius:2px}
+  .mono{font-family:"Roboto Mono",monospace}
+  .lead{color:var(--muted);font-size:clamp(1.02rem,1.5vw,1.18rem)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;font-weight:600;font-size:.97rem;
+    padding:.85em 1.5em;border-radius:12px;border:1px solid transparent;cursor:pointer;line-height:1;
+    transition:transform .18s, box-shadow .25s, background .2s, border-color .2s;white-space:nowrap}
+  .btn:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+  .btn-primary{background:var(--brand);color:#04121f;box-shadow:0 10px 28px -10px rgba(46,144,255,.6)}
+  .btn-primary:hover{background:#4aa0ff;transform:translateY(-2px);box-shadow:0 16px 34px -10px rgba(46,144,255,.7)}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--line-2)}
+  .btn-ghost:hover{border-color:var(--text);transform:translateY(-2px);background:rgba(255,255,255,.04)}
+  .btn-lg{padding:1.02em 1.85em;font-size:1.02rem}
+  .btn svg{width:17px;height:17px}
+
+  /* nav */
+  header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(10,14,23,.75);
+    border-bottom:1px solid transparent;transition:border-color .3s, background .3s}
+  header.nav.scrolled{border-bottom-color:var(--line);background:rgba(10,14,23,.9)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px;gap:18px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:1.05rem;letter-spacing:-.01em;color:var(--text)}
+  .brand .logo{width:34px;height:34px;flex:none}
+  .brand .st{font-family:"Roboto Mono",monospace;font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--move);background:rgba(51,209,122,.1);border:1px solid rgba(51,209,122,.32);padding:.3em .55em;border-radius:6px;
+    margin-left:2px;display:inline-flex;align-items:center;gap:5px}
+  .brand .st::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--move);box-shadow:0 0 8px var(--move)}
+  .nav-links{display:flex;align-items:center;gap:28px}
+  .nav-links a{color:var(--muted);font-size:.95rem;font-weight:500;transition:color .18s}
+  .nav-links a:hover{color:var(--text)}
+  .nav-cta{display:flex;align-items:center;gap:12px}
+  .hamburger{display:none;background:var(--bg-2);border:1px solid var(--line-2);border-radius:10px;width:42px;height:42px;cursor:pointer;align-items:center;justify-content:center}
+  .hamburger svg{width:20px;height:20px;stroke:var(--text)}
+  .mobile-menu{display:none;border-top:1px solid var(--line);background:rgba(10,14,23,.97)}
+  .mobile-menu a{display:block;padding:14px 24px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line)}
+  .mobile-menu a:hover{color:var(--text);background:rgba(255,255,255,.03)}
+  .mobile-menu.open{display:block}
+
+  /* hero */
+  .hero{padding:clamp(46px,7vw,84px) 0 clamp(54px,8vw,92px)}
+  .hero-grid{display:grid;grid-template-columns:1.02fr 1.05fr;gap:clamp(36px,5vw,60px);align-items:center}
+  .hero h1{font-size:clamp(2.3rem,5.1vw,3.8rem);margin:20px 0 0}
+  .hero h1 .hl{background:linear-gradient(100deg,var(--brand),#5fe0ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.lead{margin:22px 0 0;max-width:34em}
+  .hero-cta{display:flex;gap:13px;margin-top:32px;flex-wrap:wrap}
+  .hero-trust{display:flex;gap:12px 22px;margin-top:30px;flex-wrap:wrap;align-items:center}
+  .hero-trust .ht{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.9rem}
+  .hero-trust .ht svg{width:16px;height:16px;stroke:var(--brand);flex:none}
+
+  /* ---- signature: live fleet map ---- */
+  .map-card{background:linear-gradient(180deg,var(--bg-1),#090d16);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;position:relative}
+  .map-card::after{content:"";position:absolute;inset:0;border-radius:var(--radius);border:1px solid var(--brand-line);opacity:.4;pointer-events:none}
+  .map-head{display:flex;align-items:center;gap:11px;padding:14px 18px;border-bottom:1px solid var(--line);position:relative;z-index:2}
+  .map-head .dot{width:8px;height:8px;border-radius:50%;background:var(--move);box-shadow:0 0 0 4px rgba(51,209,122,.16);animation:bp 1.8s infinite}
+  @keyframes bp{0%,100%{box-shadow:0 0 0 4px rgba(51,209,122,.16)}50%{box-shadow:0 0 0 7px rgba(51,209,122,0)}}
+  .map-head .ttl{font-weight:700;font-size:.94rem;color:var(--text)}
+  .map-head .coord{margin-left:auto;font-family:"Roboto Mono",monospace;font-size:.66rem;color:var(--muted-2);letter-spacing:.03em}
+  .map-head .live{font-family:"Roboto Mono",monospace;font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--move);
+    background:rgba(51,209,122,.1);padding:.32em .6em;border-radius:6px;font-weight:600}
+  .map-wrap{position:relative}
+  .map-svg{display:block;width:100%;height:auto;background:linear-gradient(160deg,#0b1120,#0a0e18)}
+
+  /* map elements */
+  .grid line{stroke:rgba(255,255,255,.04);stroke-width:1}
+  .road{fill:none;stroke:rgba(255,255,255,.07);stroke-width:6;stroke-linecap:round}
+  .road.thin{stroke-width:3.5;stroke:rgba(255,255,255,.05)}
+  .river{fill:none;stroke:rgba(46,144,255,.10);stroke-width:9;stroke-linecap:round}
+  .geo{fill:rgba(46,144,255,.05);stroke:var(--brand);stroke-width:1.4;stroke-dasharray:5 5;opacity:.7}
+  .geo-lbl{font-family:"Roboto Mono",monospace;font-size:8px;fill:var(--brand);opacity:.75;letter-spacing:.05em}
+  .trail{fill:none;stroke-width:2;stroke-dasharray:3 5;stroke-linecap:round;opacity:.5}
+  .trail.mv{stroke:var(--move)}
+  .veh .pin{stroke:#080d16;stroke-width:2}
+  .veh.mv .pin{fill:var(--move)}.veh.idle .pin{fill:var(--idle)}.veh.stop .pin{fill:var(--idle)}.veh.off .pin{fill:var(--off)}
+  .veh .arr{fill:rgba(4,16,25,.7)}
+  .veh .ping{fill:none;stroke-width:1.6;transform-box:fill-box;transform-origin:center;animation:ping 2.4s ease-out infinite}
+  .veh.mv .ping{stroke:var(--move)}.veh.idle .ping{stroke:var(--idle)}
+  @keyframes ping{0%{transform:scale(.6);opacity:.6}100%{transform:scale(2.7);opacity:0}}
+  .veh.off{opacity:.5}
+  /* motion */
+  .v1{animation:drive1 11s ease-in-out infinite alternate}
+  .v2{animation:drive2 13s ease-in-out infinite alternate}
+  .v3{animation:drive3 9s ease-in-out infinite alternate}
+  @keyframes drive1{0%{transform:translate(0,0)}25%{transform:translate(55px,-40px)}50%{transform:translate(120px,-80px)}75%{transform:translate(200px,-135px)}100%{transform:translate(285px,-185px)}}
+  @keyframes drive2{0%{transform:translate(0,0)}100%{transform:translate(110px,12px)}}
+  @keyframes drive3{0%{transform:translate(0,0)}100%{transform:translate(-120px,-30px)}}
+
+  /* overlays */
+  .telem{position:absolute;left:14px;bottom:14px;z-index:3;background:rgba(12,17,28,.9);border:1px solid var(--line-2);
+    border-radius:12px;padding:12px 13px;min-width:196px;backdrop-filter:blur(6px);box-shadow:var(--shadow-sm)}
+  .telem .tv{font-weight:700;font-size:.84rem;color:var(--text);margin-bottom:9px;display:flex;align-items:center;gap:7px}
+  .telem .tv::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--move);box-shadow:0 0 8px var(--move)}
+  .telem .trow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+  .telem .st-pill{font-family:"Roboto Mono",monospace;font-size:.62rem;color:var(--move);text-transform:uppercase;letter-spacing:.05em}
+  .telem .spd{font-family:"Roboto Mono",monospace;font-size:.78rem;color:var(--muted)}
+  .telem .spd b{color:var(--text);font-size:1.05rem;font-weight:600}
+  .telem .fuel{display:flex;align-items:center;gap:8px;font-family:"Roboto Mono",monospace;font-size:.66rem;color:var(--muted)}
+  .telem .fbar{flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  .telem .fbar i{display:block;height:100%;background:linear-gradient(90deg,var(--move),#7fe3aa);border-radius:99px}
+
+  .mtoast{position:absolute;right:14px;top:14px;z-index:3;display:flex;align-items:center;gap:10px;
+    background:rgba(30,13,16,.92);border:1px solid rgba(255,93,93,.4);border-radius:11px;padding:10px 12px;
+    box-shadow:var(--shadow-sm);opacity:0;transform:translateY(-8px);transition:all .45s ease;max-width:220px}
+  .mtoast.show{opacity:1;transform:none}
+  .mtoast .ic{width:28px;height:28px;border-radius:8px;background:rgba(255,93,93,.16);display:flex;align-items:center;justify-content:center;flex:none}
+  .mtoast .ic svg{width:15px;height:15px;stroke:var(--alert)}
+  .mtoast b{color:var(--text);font-size:.82rem;font-weight:600;display:block}
+  .mtoast span{color:var(--muted);font-family:"Roboto Mono",monospace;font-size:.64rem}
+
+  .map-foot{display:flex;align-items:center;gap:18px;padding:12px 18px;border-top:1px solid var(--line);flex-wrap:wrap;position:relative;z-index:2}
+  .lg{display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--muted)}
+  .lg i{width:9px;height:9px;border-radius:50%;display:block}
+  .lg.mv i{background:var(--move)}.lg.idle i{background:var(--idle)}.lg.off i{background:var(--off)}
+  .lg b{color:var(--text);font-family:"Roboto Mono",monospace;font-weight:600}
+
+  /* stat band */
+  .stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.015)}
+  .stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;padding:40px 24px}
+  .stat .n{font-weight:800;font-size:clamp(1.9rem,3.2vw,2.55rem);line-height:1;letter-spacing:-.03em;color:var(--brand)}
+  .stat .l{color:var(--muted);font-size:.9rem;margin-top:10px}
+  .stat:not(:last-child){border-right:1px solid var(--line);padding-right:28px}
+
+  /* sections */
+  .sec{padding:clamp(70px,10vw,124px) 0}
+  .sec-head{max-width:680px;margin-bottom:clamp(40px,5vw,60px)}
+  .sec-head h2{margin-top:16px}.sec-head p{margin-top:16px}
+
+  /* how */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .step{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px 30px;
+    transition:transform .22s, border-color .22s, background .22s}
+  .step:hover{transform:translateY(-4px);border-color:var(--line-2);background:var(--bg-2)}
+  .step .num{font-family:"Roboto Mono",monospace;font-size:.78rem;font-weight:600;color:var(--brand);
+    border:1px solid var(--brand-line);background:var(--brand-soft);width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+  .step .si{margin:18px 0 14px}.step .si svg{width:26px;height:26px;stroke:var(--text);stroke-width:1.6}
+  .step h3{font-size:1.08rem;font-weight:700}.step p{color:var(--muted);font-size:.9rem;margin-top:8px}
+
+  /* features */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .feat{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:28px;
+    transition:transform .22s, border-color .22s, background .22s}
+  .feat:hover{transform:translateY(-4px);border-color:var(--line-2);background:var(--bg-2)}
+  .feat .fi{width:48px;height:48px;border-radius:13px;background:var(--brand-soft);border:1px solid var(--brand-line);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+  .feat .fi svg{width:24px;height:24px;stroke:var(--brand);stroke-width:1.7}
+  .feat h3{font-size:1.16rem;font-weight:700}.feat p{color:var(--muted);font-size:.93rem;margin-top:10px}
+
+  /* spotlight fuel */
+  .spot{grid-column:span 2;background:linear-gradient(120deg,rgba(46,144,255,.07),transparent 55%),var(--bg-1);
+    border-color:var(--brand-line);display:grid;grid-template-columns:1fr 1.05fr;gap:30px;align-items:center}
+  .spot h3{font-size:1.4rem}
+  .fuel-mock{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .fuel-mock .fh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .fuel-mock .fh .t{font-family:"Roboto Mono",monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .fuel-mock .fh .lg2{font-family:"Roboto Mono",monospace;font-size:.62rem;color:var(--muted-2);display:flex;gap:12px}
+  .fuel-mock .fh .lg2 span{display:flex;align-items:center;gap:5px}.fuel-mock .fh .lg2 i{width:8px;height:8px;border-radius:2px;display:block}
+  .frow{display:grid;grid-template-columns:58px 1fr 46px;align-items:center;gap:10px;padding:7px 0}
+  .frow .id{font-family:"Roboto Mono",monospace;font-size:.72rem;color:var(--text)}
+  .frow .track{height:16px;border-radius:6px;background:rgba(255,255,255,.05);position:relative;overflow:hidden}
+  .frow .track .norm{position:absolute;top:0;bottom:0;left:62%;width:2px;background:var(--muted);opacity:.7}
+  .frow .track .act{position:absolute;top:0;bottom:0;left:0;border-radius:6px}
+  .frow .act.good{background:linear-gradient(90deg,rgba(51,209,122,.5),var(--move))}
+  .frow .act.warn{background:linear-gradient(90deg,rgba(245,165,36,.5),var(--idle))}
+  .frow .act.bad{background:linear-gradient(90deg,rgba(255,93,93,.5),var(--alert))}
+  .frow .d{font-family:"Roboto Mono",monospace;font-size:.72rem;text-align:right;font-weight:600}
+  .frow .d.good{color:var(--move)}.frow .d.warn{color:var(--idle)}.frow .d.bad{color:var(--alert)}
+
+  /* integrations */
+  .intg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .intg .ic{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:24px 22px;transition:border-color .2s, transform .2s}
+  .intg .ic:hover{border-color:var(--brand-line);transform:translateY(-3px)}
+  .intg .ic .badge{font-weight:800;font-size:1.15rem;color:var(--text);letter-spacing:-.01em}
+  .intg .ic p{color:var(--muted);font-size:.86rem;margin-top:8px}
+
+  /* uses */
+  .uses{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .use{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:22px;transition:border-color .2s, transform .2s}
+  .use:hover{border-color:var(--brand-line);transform:translateY(-3px)}
+  .use .uh{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .use .ui{width:34px;height:34px;border-radius:9px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;flex:none}
+  .use .ui svg{width:18px;height:18px;stroke:var(--brand);stroke-width:1.7}
+  .use .uh b{font-size:1rem;color:var(--text);font-weight:700}
+  .use p{color:var(--muted);font-size:.88rem}
+
+  /* faq */
+  .faq{max-width:820px;margin:0 auto}
+  .faq details{border:1px solid var(--line);border-radius:13px;background:var(--bg-1);margin-bottom:12px;overflow:hidden}
+  .faq details[open]{border-color:var(--line-2);background:var(--bg-2)}
+  .faq summary{padding:20px 24px;cursor:pointer;font-weight:700;color:var(--text);font-size:1.02rem;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary .pl{flex:none;width:20px;height:20px;position:relative}
+  .faq summary .pl::before,.faq summary .pl::after{content:"";position:absolute;inset:0;margin:auto;background:var(--brand);border-radius:2px}
+  .faq summary .pl::before{width:13px;height:2px}.faq summary .pl::after{width:2px;height:13px;transition:transform .25s}
+  .faq details[open] summary .pl::after{transform:scaleY(0)}
+  .faq .a{padding:0 24px 22px;color:var(--muted);font-size:.95rem;max-width:64ch}
+
+  /* contact */
+  .cta{padding:clamp(20px,4vw,40px) 0 clamp(70px,9vw,110px)}
+  .cta-card{border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:1fr 1fr;background:var(--bg-1)}
+  .cta-left{padding:clamp(34px,4vw,56px);background:linear-gradient(150deg,rgba(46,144,255,.09),transparent 60%)}
+  .cta-left h2{font-size:clamp(1.7rem,3vw,2.3rem)}
+  .cta-left p{color:var(--muted);margin-top:16px;max-width:30em}
+  .cta-pts{display:flex;flex-direction:column;gap:12px;margin-top:26px}
+  .cta-pts .p{display:flex;gap:11px;align-items:center;font-size:.92rem;color:var(--text)}
+  .cta-pts .p svg{width:18px;height:18px;stroke:var(--brand);flex:none}
+  .cta-right{padding:clamp(34px,4vw,52px)}
+  .frow2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .field{margin-bottom:15px}
+  .field label{display:block;font-size:.83rem;font-weight:600;color:var(--text);margin-bottom:7px}
+  .field label .req{color:var(--alert)}
+  .field input,.field select,.field textarea{width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;color:var(--text);font-family:inherit;font-size:.94rem;transition:border-color .18s, box-shadow .18s}
+  .field textarea{resize:vertical;min-height:82px}
+  .field input::placeholder,.field textarea::placeholder{color:var(--muted-2)}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(46,144,255,.14)}
+  .field select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%238A97AD' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+  .field.err input,.field.err select{border-color:var(--alert)}
+  .field .me{color:var(--alert);font-size:.77rem;margin-top:5px;display:none}.field.err .me{display:block}
+  .cta-right .btn-primary{width:100%;margin-top:6px}
+  .fnote{color:var(--muted-2);font-size:.78rem;text-align:center;margin-top:13px}
+  .ferr{display:none;color:var(--alert);font-size:.85rem;text-align:center;margin-top:12px;background:rgba(255,93,93,.08);border:1px solid rgba(255,93,93,.28);border-radius:10px;padding:10px}
+  .ferr.show{display:block}
+  .csuccess{display:none;text-align:center;padding:24px 6px}.csuccess.show{display:block;animation:fade .4s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .csuccess .ok{width:64px;height:64px;border-radius:50%;background:rgba(51,209,122,.12);border:1px solid rgba(51,209,122,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+  .csuccess .ok svg{width:30px;height:30px;stroke:var(--move)}
+  .csuccess h3{font-size:1.4rem;margin-bottom:8px;color:var(--text)}.csuccess p{color:var(--muted);max-width:28em;margin:0 auto}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:54px 0 38px;position:relative;z-index:1}
+  .foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:30px}
+  .foot-brand p{color:var(--muted);font-size:.9rem;margin-top:14px;max-width:32ch}
+  .foot-col h4{font-family:"Roboto Mono",monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px}
+  .foot-col a{display:block;color:var(--muted);font-size:.92rem;padding:5px 0;transition:color .18s}.foot-col a:hover{color:var(--text)}
+  .foot-bot{display:flex;justify-content:space-between;align-items:center;margin-top:44px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted-2);font-size:.84rem;flex-wrap:wrap;gap:10px}
+
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease, transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    .map-head .dot,.v1,.v2,.v3,.veh .ping{animation:none}
+  }
+
+  @media (max-width:960px){
+    .nav-links{display:none}.hamburger{display:flex}.nav-cta .btn-ghost{display:none}
+    .hero-grid{grid-template-columns:1fr;gap:40px}.map-card{max-width:600px}
+    .stats .wrap{grid-template-columns:1fr 1fr;gap:26px}.stat:nth-child(2){border-right:none;padding-right:0}
+    .steps{grid-template-columns:1fr 1fr}
+    .feat-grid{grid-template-columns:1fr 1fr}.spot{grid-column:1/-1;grid-template-columns:1fr;gap:28px}
+    .intg{grid-template-columns:1fr 1fr}.uses{grid-template-columns:1fr 1fr}
+    .cta-card{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr 1fr;gap:32px}
+  }
+  @media (max-width:600px){
+    .wrap{padding:0 18px}.nav-cta .btn-primary{display:none}.brand{font-size:.95rem}.brand .logo{width:30px;height:30px}.brand .st{display:none}
+    .stats .wrap{grid-template-columns:1fr 1fr;gap:22px}
+    .steps{grid-template-columns:1fr}.feat-grid{grid-template-columns:1fr}
+    .intg{grid-template-columns:1fr 1fr}.uses{grid-template-columns:1fr}
+    .frow2{grid-template-columns:1fr}.foot-grid{grid-template-columns:1fr 1fr}
+    .telem{min-width:170px}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="brand" aria-label="GPS Monitoring System">
+      <svg class="logo" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="38" height="38" rx="11" fill="#2E90FF"/>
+        <path d="M20 9c-4.4 0-8 3.5-8 7.9 0 5.5 8 14.1 8 14.1s8-8.6 8-14.1C28 12.5 24.4 9 20 9z" fill="#04121f"/>
+        <circle cx="20" cy="16.6" r="3" fill="#fff"/>
+      </svg>
+      <span>GPS Monitoring</span><span class="st">გაშვებული</span>
+    </a>
+    <nav class="nav-links" aria-label="main">
+      <a href="#how">როგორ მუშაობს</a>
+      <a href="#features">შესაძლებლობები</a>
+      <a href="#integrations">ინტეგრაციები</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#features" class="btn btn-ghost">გაიგე მეტი</a>
+      <a href="#contact" class="btn btn-primary">დემოს ნახვა</a>
+      <button class="hamburger" id="burger" aria-label="მენიუ" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#how">როგორ მუშაობს</a>
+    <a href="#features">შესაძლებლობები</a>
+    <a href="#integrations">ინტეგრაციები</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact">დემოს ნახვა</a>
+  </div>
+</header>
+<span id="top"></span>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">ავტოპარკის მონიტორინგი · GPS ტელემეტრია</span>
+      <h1>მთელი ავტოპარკი — <span class="hl">ერთ რუკაზე</span>, რეალურ დროში.</h1>
+      <p class="lead">GPS Monitoring System უერთდება თქვენს არსებულ GPS მოწყობილობებს — ახალი ტექნიკის გარეშე. ყველა მანქანა ერთ დეშბორდზე: ადგილმდებარეობა, საწვავის ხარჯი, მარშრუტები და მძღოლის ქცევა.</p>
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary btn-lg">დემოს ნახვა
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a href="#how" class="btn btn-ghost btn-lg">ნახე როგორ მუშაობს</a>
+      </div>
+      <div class="hero-trust">
+        <span class="ht"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>არსებულ GPS-ს უერთდება</span>
+        <span class="ht"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>ახალი ტექნიკა არ სჭირდება</span>
+        <span class="ht"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>1C · SAP</span>
+      </div>
+    </div>
+
+    <!-- SIGNATURE: LIVE FLEET MAP -->
+    <div class="map-card reveal" id="mapcard">
+      <div class="map-head">
+        <span class="dot"></span>
+        <span class="ttl">ცოცხალი რუკა · ავტოპარკი</span>
+        <span class="live">live</span>
+        <span class="coord">41.71°N · 44.79°E</span>
+      </div>
+      <div class="map-wrap">
+        <svg class="map-svg" viewBox="0 0 520 340" preserveAspectRatio="xMidYMid slice" role="img" aria-label="ავტოპარკის ცოცხალი რუკა">
+          <g class="grid">
+            <line x1="0" y1="60" x2="520" y2="60"/><line x1="0" y1="120" x2="520" y2="120"/><line x1="0" y1="180" x2="520" y2="180"/><line x1="0" y1="240" x2="520" y2="240"/><line x1="0" y1="300" x2="520" y2="300"/>
+            <line x1="90" y1="0" x2="90" y2="340"/><line x1="190" y1="0" x2="190" y2="340"/><line x1="290" y1="0" x2="290" y2="340"/><line x1="390" y1="0" x2="390" y2="340"/><line x1="470" y1="0" x2="470" y2="340"/>
+          </g>
+          <path class="river" d="M-10 250 C 120 220 180 300 300 260 S 470 210 540 250"/>
+          <path class="road" d="M20 300 C 160 260 220 130 300 110 S 470 80 520 60"/>
+          <path class="road" d="M-10 140 C 140 150 260 140 400 165 S 520 175 540 170"/>
+          <path class="road thin" d="M200 -10 C 210 120 180 220 235 340"/>
+          <!-- geofence -->
+          <circle class="geo" cx="395" cy="110" r="70"/>
+          <text class="geo-lbl" x="352" y="46">GEO-ZONE 03</text>
+          <!-- trails -->
+          <polyline class="trail mv" points="120,255 175,215 240,175 320,120 405,70"/>
+          <!-- vehicles -->
+          <g class="veh mv v1">
+            <circle class="ping" cx="120" cy="255" r="9"/>
+            <circle class="pin" cx="120" cy="255" r="8"/>
+            <path class="arr" d="M120 251 l3.4 6 -6.8 0 z" transform="rotate(35 120 255)"/>
+          </g>
+          <g class="veh mv v2">
+            <circle class="pin" cx="300" cy="150" r="7.5"/>
+            <path class="arr" d="M300 146.5 l3 5.2 -6 0 z" transform="rotate(80 300 150)"/>
+          </g>
+          <g class="veh mv v3">
+            <circle class="ping" cx="345" cy="150" r="9"/>
+            <circle class="pin" cx="345" cy="150" r="7.5"/>
+            <path class="arr" d="M345 146.5 l3 5.2 -6 0 z" transform="rotate(-110 345 150)"/>
+          </g>
+          <g class="veh idle">
+            <circle class="ping" cx="150" cy="95" r="9"/>
+            <circle class="pin" cx="150" cy="95" r="7.5"/>
+          </g>
+          <g class="veh stop"><circle class="pin" cx="235" cy="300" r="7.5"/></g>
+          <g class="veh off"><circle class="pin" cx="445" cy="290" r="7.5"/></g>
+        </svg>
+
+        <div class="telem">
+          <div class="tv">TR-114 · Volvo FH</div>
+          <div class="trow"><span class="st-pill">მოძრაობს</span><span class="spd"><b id="spd">72</b> კმ/სთ</span></div>
+          <div class="fuel"><span>საწვ.</span><div class="fbar"><i style="width:68%"></i></div><span>68%</span></div>
+        </div>
+
+        <div class="mtoast" id="mtoast">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
+          <div><b>გეოფენსის გასვლა</b><span>TR-207 · GEO-ZONE 03</span></div>
+        </div>
+      </div>
+      <div class="map-foot">
+        <span class="lg mv"><i></i>მოძრაობს <b>9</b></span>
+        <span class="lg idle"><i></i>დგას <b>3</b></span>
+        <span class="lg off"><i></i>გამორთული <b>2</b></span>
+        <span class="lg" style="margin-left:auto;color:var(--muted-2)"><span class="mono">14 მანქანა</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="wrap">
+    <div class="stat reveal"><div class="n">24/7</div><div class="l">რეალურ დროში მონიტორინგი</div></div>
+    <div class="stat reveal"><div class="n">0₾</div><div class="l">ახალ ტექნიკაზე — არსებულ GPS-ს უერთდება</div></div>
+    <div class="stat reveal"><div class="n">1</div><div class="l">დეშბორდი — მთელი ავტოპარკი</div></div>
+    <div class="stat reveal"><div class="n">1C · SAP</div><div class="l">ინტეგრაცია მზა API-ით</div></div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">პროცესი</span>
+      <h2>დაკავშირებიდან კონტროლამდე — ოთხ ნაბიჯში</h2>
+      <p class="lead">ახალი მოწყობილობის მონტაჟი არ არის საჭირო. სისტემა დაუყოვნებლივ იწყებს მუშაობას თქვენს არსებულ GPS ერთეულებზე.</p>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <span class="num">01</span>
+        <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/><path d="M12 20v-4M12 8V4M20 12h-4M8 12H4"/></svg></div>
+        <h3>დაუკავშირდი არსებულ GPS-ს</h3>
+        <p>სისტემა უერთდება უკვე დაყენებულ GPS ერთეულებს — ახალი ტექნიკის შეძენა არ გჭირდება.</p>
+      </div>
+      <div class="step">
+        <span class="num">02</span>
+        <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4l-6 3v13l6-3 6 3 6-3V4l-6 3-6-3z"/><path d="M9 4v13M15 7v13"/></svg></div>
+        <h3>ყველა მანქანა ერთ დეშბორდზე</h3>
+        <p>ავტოპარკი ერთ რუკაზე ჩანს: ადგილმდებარეობა, სიჩქარე და სტატუსი.</p>
+      </div>
+      <div class="step">
+        <span class="num">03</span>
+        <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 6 4-14 2 8h6"/></svg></div>
+        <h3>ავტომატური ანალიზი</h3>
+        <p>საწვავი, მარშრუტები, იდლ და მძღოლის ქცევა მუდმივად ანალიზდება.</p>
+      </div>
+      <div class="step">
+        <span class="num">04</span>
+        <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+        <h3>ალერტები და ანგარიშები</h3>
+        <p>მოვლენებზე მყისიერი შეტყობინება; ავტო-ანგარიშები 1C და SAP სისტემებში.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="sec" id="features" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">შესაძლებლობები</span>
+      <h2>ავტოპარკის სრული სურათი — ერთ სისტემაში</h2>
+      <p class="lead">ლოკაციიდან საწვავამდე, მძღოლის ქცევიდან ანგარიშებამდე.</p>
+    </div>
+    <div class="feat-grid">
+      <!-- SPOTLIGHT: fuel -->
+      <article class="feat spot reveal">
+        <div>
+          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h10V5a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v15z"/><path d="M13 9h3l3 3v6a2 2 0 0 1-4 0v-3h-2M7 8h4"/></svg></div>
+          <h3>საწვავის ანალიზი</h3>
+          <p>ყოველი მანქანის ფაქტობრივი ხარჯი სტანდარტულ ნორმასთან შედარებით. ნორმა ტვირთისა და მარშრუტის სიძნელის გათვალისწინებით ითვლება — ხარჯვის გადამეტება მაშინვე ჩანს.</p>
+        </div>
+        <div class="fuel-mock">
+          <div class="fh"><span class="t">ფაქტი vs ნორმა</span>
+            <span class="lg2"><span><i style="background:var(--muted)"></i>ნორმა</span><span><i style="background:var(--move)"></i>ფაქტი</span></span></div>
+          <div class="frow"><span class="id">TR-114</span><div class="track"><span class="norm"></span><span class="act good" style="width:56%"></span></div><span class="d good">-8%</span></div>
+          <div class="frow"><span class="id">TR-052</span><div class="track"><span class="norm"></span><span class="act warn" style="width:66%"></span></div><span class="d warn">+4%</span></div>
+          <div class="frow"><span class="id">TR-207</span><div class="track"><span class="norm"></span><span class="act bad" style="width:82%"></span></div><span class="d bad">+18%</span></div>
+          <div class="frow"><span class="id">TR-311</span><div class="track"><span class="norm"></span><span class="act good" style="width:52%"></span></div><span class="d good">-11%</span></div>
+        </div>
+      </article>
+
+      <article class="feat reveal">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4l-6 3v13l6-3 6 3 6-3V4l-6 3-6-3z"/><path d="M9 4v13M15 7v13"/></svg></div>
+        <h3>რეალურ-დროული რუკა</h3>
+        <p>ყველა სატრანსპორტო საშუალება ერთ რუკაზე — ადგილმდებარეობა, სიჩქარე და სტატუსი: მოძრაობს / დგას / გამორთულია.</p>
+      </article>
+
+      <article class="feat reveal">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>იდლ-დეტექცია</h3>
+        <p>სისტემა ფიქსირებს, სად და რამდენ ხანს მუშაობდა ძრავა გაჩერებულ მდგომარეობაში — ზედმეტი საწვავის ხარჯი გამოაშკარავდება.</p>
+      </article>
+
+      <article class="feat reveal">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0zM15 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0z"/><path d="M5 17H3V9l3-4h8l4 5h2v7h-2"/></svg></div>
+        <h3>მძღოლის ქცევის ანალიზი</h3>
+        <p>სიჩქარის გადამეტება, მკვეთრი დამუხრუჭება, კუთხოვანი სიარული — ყველა მოვლენა ჩაიწერება.</p>
+      </article>
+
+      <article class="feat reveal">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+        <h3>ალერტ სისტემა</h3>
+        <p>ნებისმიერ კონფიგურირებად მოვლენაზე — მარშრუტიდან გადახვევა, ნორმის გადამეტება, გეოფენსის გასვლა — მყისიერი შეტყობინება.</p>
+      </article>
+
+      <article class="feat reveal">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 13h6M9 17h4"/></svg></div>
+        <h3>ანგარიშები</h3>
+        <p>ყოველდღიური და ყოველთვიური ავტომატური ანგარიში თითოეული მანქანისა და მძღოლის მიხედვით.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- INTEGRATIONS -->
+<section class="sec" id="integrations" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">ინტეგრაციები</span>
+      <h2>უერთდება იმას, რაც უკვე გაქვთ</h2>
+      <p class="lead">მონაცემები ავტომატურად ერთვება თქვენს აღრიცხვისა და ERP სისტემებში — ხელით გადატანის გარეშე.</p>
+    </div>
+    <div class="intg reveal">
+      <div class="ic"><div class="badge">1C</div><p>ავტომატური ანგარიშები და მონაცემები პირდაპირ 1C-ში.</p></div>
+      <div class="ic"><div class="badge">SAP</div><p>ინტეგრაცია SAP-თან მზა API ინტერფეისით.</p></div>
+      <div class="ic"><div class="badge">GPS ერთეულები</div><p>უერთდება არსებულ GPS მოწყობილობებს — ახალი ტექნიკის გარეშე.</p></div>
+      <div class="ic"><div class="badge">API / Webhooks</div><p>საკუთარ სისტემებთან დასაკავშირებლად ღია API.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO -->
+<section class="sec" id="who" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">ვისთვის</span>
+      <h2>შექმნილია მათთვის, ვისაც ავტოპარკი აქვს სამართავი</h2>
+    </div>
+    <div class="uses reveal">
+      <div class="use"><div class="uh"><span class="ui"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="1.8"/><circle cx="18.5" cy="18.5" r="1.8"/></svg></span><b>სატრანსპორტო კომპანიები</b></div><p>დიდი ავტოპარკის სრული ხედვა და კონტროლი ერთი ეკრანიდან.</p></div>
+      <div class="use"><div class="uh"><span class="ui"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><b>ლოჯისტიკა და დისტრიბუცია</b></div><p>მარშრუტების ოპტიმიზაცია და მიწოდების დროის კონტროლი.</p></div>
+      <div class="use"><div class="uh"><span class="ui"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M3 21h18M5 21V10l4-2 4 2M13 21V6l6 3v12"/></svg></span><b>მშენებლობა</b></div><p>ტექნიკის მდებარეობა, იდლი და საწვავი ობიექტების მიხედვით.</p></div>
+      <div class="use"><div class="uh"><span class="ui"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M5 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0zM15 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0z"/><path d="M5 17H3V9l3-4h8l4 5h2v7h-2"/></svg></span><b>ტაქსი და მიწოდება</b></div><p>მძღოლების ქცევა, სიჩქარე და მომსახურების ხარისხი.</p></div>
+      <div class="use"><div class="uh"><span class="ui"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 2v20M2 12h20"/></svg></span><b>სოფლის მეურნეობა</b></div><p>ტექნიკის მონიტორინგი ველზე და საწვავის კონტროლი.</p></div>
+      <div class="use"><div class="uh"><span class="ui"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-6h6v6"/></svg></span><b>მუნიციპალური პარკი</b></div><p>საზოგადოებრივი ტრანსპორტისა და კომუნალური ტექნიკის აღრიცხვა.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal" style="margin:0 auto;text-align:center">
+      <span class="eyebrow" style="justify-content:center">ხშირი კითხვები</span>
+      <h2>რაც ხშირად გვეკითხებიან</h2>
+    </div>
+    <div class="faq reveal">
+      <details open><summary>მუშაობს ჩემს არსებულ GPS მოწყობილობებთან?<span class="pl"></span></summary>
+        <div class="a">დიახ. სისტემა უერთდება უკვე დაყენებულ GPS ერთეულებს — ახალი ტექნიკის შეძენა და მონტაჟი არ არის საჭირო. კონკრეტული მოწყობილობების თავსებადობას დემოზე ერთად გადავამოწმებთ.</div></details>
+      <details><summary>როგორ ითვლება საწვავის ნორმა?<span class="pl"></span></summary>
+        <div class="a">სტანდარტული ნორმა ითვლება ტვირთისა და მარშრუტის სიძნელის გათვალისწინებით, შემდეგ კი ედრება ფაქტობრივ ხარჯს — ასე ჩანს, სად ხდება ზედმეტი დახარჯვა.</div></details>
+      <details><summary>ალერტები კონფიგურირებადია?<span class="pl"></span></summary>
+        <div class="a">დიახ. შეტყობინება შეიძლება დაყენდეს ნებისმიერ მოვლენაზე — მარშრუტიდან გადახვევა, ნორმის გადამეტება, გეოფენსის გასვლა და სხვა.</div></details>
+      <details><summary>რა ფორმატში მოდის ანგარიშები?<span class="pl"></span></summary>
+        <div class="a">ავტომატური ყოველდღიური და ყოველთვიური ანგარიშები იქმნება თითოეული მანქანისა და მძღოლის მიხედვით და შეიძლება პირდაპირ ჩაიტვირთოს 1C ან SAP სისტემებში.</div></details>
+      <details><summary>გაქვთ 1C და SAP ინტეგრაცია?<span class="pl"></span></summary>
+        <div class="a">დიახ. API ინტეგრაცია 1C-სა და SAP-თან უზრუნველყოფს მონაცემების ავტომატურ გაცვლას — ხელით გადატანის საჭიროების გარეშე.</div></details>
+      <details><summary>რამდენად სწრაფად ვიწყებ მუშაობას?<span class="pl"></span></summary>
+        <div class="a">რადგან სისტემა თქვენს არსებულ GPS-ს უერთდება, დაყენება სწრაფია — ტექნიკის მონტაჟზე დროს არ კარგავთ. ზუსტ ვადებს დემოზე შევათანხმებთ.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="cta" id="contact">
+  <div class="wrap">
+    <div class="cta-card reveal">
+      <div class="cta-left">
+        <span class="eyebrow">დემოს ნახვა</span>
+        <h2>ნახე შენი ავტოპარკი ერთ რუკაზე</h2>
+        <p>დაგვიტოვე მონაცემები და გაჩვენებთ, როგორ მუშაობს სისტემა თქვენს ავტოპარკზე — თქვენივე GPS მოწყობილობებით.</p>
+        <div class="cta-pts">
+          <div class="p"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>დემო თქვენივე მოწყობილობებზე</div>
+          <div class="p"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>1C / SAP ინტეგრაციის განხილვა</div>
+          <div class="p"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>პასუხი 1 სამუშაო დღეში</div>
+        </div>
+      </div>
+      <div class="cta-right">
+        <form id="leadForm" novalidate>
+          <div class="frow2">
+            <div class="field"><label>სახელი <span class="req">*</span></label>
+              <input type="text" name="name" placeholder="თქვენი სახელი" required><div class="me">შეავსეთ სახელი</div></div>
+            <div class="field"><label>კომპანია <span class="req">*</span></label>
+              <input type="text" name="company" placeholder="კომპანიის სახელი" required><div class="me">შეავსეთ კომპანია</div></div>
+          </div>
+          <div class="field"><label>სამუშაო ელ-ფოსტა <span class="req">*</span></label>
+            <input type="email" name="email" placeholder="name@company.ge" required><div class="me">შეიყვანეთ სწორი ელ-ფოსტა</div></div>
+          <div class="frow2">
+            <div class="field"><label>ტელეფონი</label>
+              <input type="tel" name="phone" placeholder="+995 5XX XX XX XX"></div>
+            <div class="field"><label>ავტოპარკის ზომა</label>
+              <select name="fleet">
+                <option value="">აირჩიეთ...</option>
+                <option>1–10 მანქანა</option>
+                <option>11–50 მანქანა</option>
+                <option>51–200 მანქანა</option>
+                <option>200+ მანქანა</option>
+              </select></div>
+          </div>
+          <div class="field"><label>შეტყობინება</label>
+            <textarea name="message" placeholder="რა GPS მოწყობილობებს იყენებთ? რა გამოწვევები გაქვთ?"></textarea></div>
+          <button type="submit" class="btn btn-primary btn-lg">დემოს მოთხოვნის გაგზავნა
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <p class="ferr" id="ferr">დაფიქსირდა შეცდომა. სცადეთ ხელახლა ან მოგვწერეთ ელ-ფოსტაზე.</p>
+          <p class="fnote">სპამს არ მოგწერთ. მონაცემები მხოლოდ დემოს დასაგეგმად გამოიყენება.</p>
+        </form>
+        <div class="csuccess" id="csuccess">
+          <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <h3>მადლობა! მიღებულია.</h3>
+          <p>თქვენი მოთხოვნა მივიღეთ. დაგიკავშირდებით 1 სამუშაო დღეში დემოს დასაგეგმად.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a href="#top" class="brand">
+          <svg class="logo" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <rect x="1" y="1" width="38" height="38" rx="11" fill="#2E90FF"/>
+            <path d="M20 9c-4.4 0-8 3.5-8 7.9 0 5.5 8 14.1 8 14.1s8-8.6 8-14.1C28 12.5 24.4 9 20 9z" fill="#04121f"/>
+            <circle cx="20" cy="16.6" r="3" fill="#fff"/>
+          </svg><span>GPS Monitoring System</span>
+        </a>
+        <p>ავტოპარკის მონიტორინგის ვებ-პლატფორმა. მთელი ავტოპარკი ერთ რუკაზე, რეალურ დროში.</p>
+      </div>
+      <div class="foot-col"><h4>პროდუქტი</h4>
+        <a href="#how">როგორ მუშაობს</a><a href="#features">შესაძლებლობები</a><a href="#integrations">ინტეგრაციები</a><a href="#contact">დემოს ნახვა</a></div>
+      <div class="foot-col"><h4>კომპანია</h4>
+        <a href="#">ჩვენ შესახებ</a><a href="#">ბლოგი</a><a href="#">კონტაქტი</a></div>
+      <div class="foot-col"><h4>სამართლებრივი</h4>
+        <a href="#">კონფიდენციალურობა</a><a href="#">პირობები</a></div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2026 GPS Monitoring System. ყველა უფლება დაცულია.</span>
+      <span class="mono">status: გაშვებული</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* nav */
+var nav=document.getElementById('nav');
+window.addEventListener('scroll',function(){ if(window.scrollY>12) nav.classList.add('scrolled'); else nav.classList.remove('scrolled'); });
+var burger=document.getElementById('burger'), menu=document.getElementById('mobileMenu');
+burger.addEventListener('click',function(){ var o=menu.classList.toggle('open'); burger.setAttribute('aria-expanded',o?'true':'false'); });
+menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',function(){ menu.classList.remove('open'); burger.setAttribute('aria-expanded','false'); }); });
+
+/* reveal */
+if('IntersectionObserver' in window && !reduce){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+} else { document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');}); }
+
+/* telemetry: animated speed + alert toast loop */
+(function(){
+  var spd=document.getElementById('spd'), toast=document.getElementById('mtoast');
+  if(reduce){ if(toast) toast.classList.add('show'); return; }
+  var v=72;
+  setInterval(function(){ v += Math.round((Math.random()-.5)*6); if(v<58)v=58; if(v>84)v=84; if(spd) spd.textContent=v; }, 1400);
+  function cycle(){
+    setTimeout(function(){ toast.classList.add('show');
+      setTimeout(function(){ toast.classList.remove('show'); cycle(); }, 4200);
+    }, 3200);
+  }
+  var started=false;
+  var ob=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting&&!started){started=true;cycle();}});},{threshold:.3});
+  ob.observe(document.getElementById('mapcard'));
+})();
+
+/* ---- lead form (Formspree) ----
+   TO RECEIVE SUBMISSIONS BY EMAIL:
+   1. Create a free form at https://formspree.io
+   2. Copy your form ID (e.g. xayzqwkd)
+   3. Replace YOUR_FORM_ID below.
+   Until then the form runs in demo mode (shows success only). */
+var FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+(function(){
+  var form=document.getElementById('leadForm'); if(!form) return;
+  var ferr=document.getElementById('ferr');
+  function valid(){
+    var ok=true;
+    form.querySelectorAll('[required]').forEach(function(input){
+      var f=input.closest('.field'); var val=(input.value||'').trim(); var bad=!val;
+      if(input.type==='email'&&val){ bad=!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val); }
+      f.classList.toggle('err',bad); if(bad) ok=false;
+    });
+    return ok;
+  }
+  form.querySelectorAll('[required]').forEach(function(input){
+    input.addEventListener('input',function(){ if(input.closest('.field').classList.contains('err')) valid(); });
+  });
+  function success(){ form.style.display='none'; document.getElementById('csuccess').classList.add('show'); }
+  form.addEventListener('submit',function(e){
+    e.preventDefault(); ferr.classList.remove('show');
+    if(!valid()){ var fe=form.querySelector('.field.err'); if(fe) fe.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+    if(FORMSPREE_ENDPOINT.indexOf('YOUR_FORM_ID')!==-1){ success(); return; }
+    var btn=form.querySelector('button[type=submit]'); btn.disabled=true;
+    fetch(FORMSPREE_ENDPOINT,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}})
+      .then(function(r){ if(r.ok){success();} else {ferr.classList.add('show');btn.disabled=false;} })
+      .catch(function(){ ferr.classList.add('show');btn.disabled=false; });
+  });
+})();
+</script>
+</body>
+</html>
