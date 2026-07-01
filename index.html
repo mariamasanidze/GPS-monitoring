@@ -604,6 +604,8 @@
       </div>
       <div class="cta-right">
         <form id="leadForm" novalidate>
+            <input type="hidden" name="subject" value="GPS Monitoring System — დემოს მოთხოვნა">
+            <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
           <div class="frow2">
             <div class="field"><label>სახელი <span class="req">*</span></label>
               <input type="text" name="name" placeholder="თქვენი სახელი" required><div class="me">შეავსეთ სახელი</div></div>
@@ -701,13 +703,11 @@ if('IntersectionObserver' in window && !reduce){
   ob.observe(document.getElementById('mapcard'));
 })();
 
-/* ---- lead form (Formspree) ----
-   TO RECEIVE SUBMISSIONS BY EMAIL:
-   1. Create a free form at https://formspree.io
-   2. Copy your form ID (e.g. xayzqwkd)
-   3. Replace YOUR_FORM_ID below.
-   Until then the form runs in demo mode (shows success only). */
-var FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+/* ---- lead form → Web3Forms ----
+   Submissions are delivered to the email address tied to the access key below (W3F_KEY).
+   To change the destination or key, get a new key at https://web3forms.com and replace W3F_KEY. */
+var W3F_KEY = "9399b7ad-c7aa-4fa4-a634-b60fcc13d666";
+var FORM_ENDPOINT = "https://api.web3forms.com/submit";
 (function(){
   var form=document.getElementById('leadForm'); if(!form) return;
   var ferr=document.getElementById('ferr');
@@ -727,9 +727,9 @@ var FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
   form.addEventListener('submit',function(e){
     e.preventDefault(); ferr.classList.remove('show');
     if(!valid()){ var fe=form.querySelector('.field.err'); if(fe) fe.scrollIntoView({behavior:'smooth',block:'center'}); return; }
-    if(FORMSPREE_ENDPOINT.indexOf('YOUR_FORM_ID')!==-1){ success(); return; }
     var btn=form.querySelector('button[type=submit]'); btn.disabled=true;
-    fetch(FORMSPREE_ENDPOINT,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}})
+    var data=new FormData(form); data.append('access_key', W3F_KEY);
+    fetch(FORM_ENDPOINT,{method:'POST',body:data,headers:{'Accept':'application/json'}})
       .then(function(r){ if(r.ok){success();} else {ferr.classList.add('show');btn.disabled=false;} })
       .catch(function(){ ferr.classList.add('show');btn.disabled=false; });
   });
