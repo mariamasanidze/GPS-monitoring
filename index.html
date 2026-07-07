@@ -167,10 +167,18 @@
 
   /* sections */
   .sec{padding:clamp(64px,10vw,116px) 0}
-  .sec-head{max-width:640px;margin-bottom:clamp(38px,5vw,56px)}
+  .sec-head{max-width:640px;margin-bottom:clamp(38px,5vw,56px);container-type:inline-size}
   .sec-head h2{margin-top:14px}.sec-head p{margin-top:14px}
-  .sec-head h2.h2-fit{font-size:clamp(1.35rem,2.5vw,1.85rem);max-width:none;text-wrap:balance}
-  .sec-head h2.h2-fit .h2-l1{white-space:nowrap}
+  .sec-head h2.h2-fit{font-size:clamp(1.2rem,1rem + 1.6vw,1.85rem);max-width:none;line-height:1.28;text-wrap:pretty}
+  .sec-head h2.h2-fit .h2-l1,
+  .sec-head h2.h2-fit .h2-l2{display:block}
+  .sec-head h2.h2-fit .h2-br{display:none}
+  @container (min-width: 480px){
+    .sec-head h2.h2-fit .h2-l1{white-space:nowrap}
+  }
+  @container (min-width: 400px){
+    .sec-head h2.h2-fit .h2-l2{white-space:nowrap}
+  }
   .sec-head .lead-fit{font-size:clamp(.92rem,1.25vw,1.05rem)}
 
   /* how */
@@ -286,7 +294,7 @@
     .frow2{grid-template-columns:1fr}.foot-grid{grid-template-columns:1fr 1fr}
     .hero h1{font-size:clamp(1.5rem,7.5vw,2.1rem);line-height:1.42}
     .hero h1 .hline{white-space:normal}
-    .h2-fit .h2-l1{white-space:normal}
+    #who .sec-head h2.h2-fit{font-size:clamp(1.05rem,4.2vw,1.45rem)}
     /* small map card on mobile: keep overlay text proportionally smaller, not just cropped */
     .telem{width:clamp(96px,38%,120px);padding:6px 8px;left:8px;bottom:8px;border-radius:8px}
     .telem .tv{font-size:.58rem;margin-bottom:4px}
@@ -345,10 +353,6 @@
     <a href="#integrations" data-i18n="nav.integrations">ინტეგრაციები</a>
     <a href="#faq" data-i18n="nav.faq">FAQ</a>
     <a href="#contact" data-i18n="nav.demo">დაგეგმე დემო</a>
-    <div class="langtog" role="group" aria-label="Language / ენა">
-      <button type="button" data-lang="ka" class="active">KA</button>
-      <button type="button" data-lang="en">EN</button>
-    </div>
   </div>
 </header>
 <span id="top"></span>
@@ -556,7 +560,7 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <span class="eyebrow" data-i18n="who.eyebrow">ვისთვის</span>
-      <h2 class="h2-fit" data-i18n-html="who.h2"><span class="h2-l1">ნებისმიერი ორგანიზაციისთვის, რომელიც</span><br>მართავს სატრანსპორტო საშუალებებს</h2>
+      <h2 class="h2-fit" data-i18n-html="who.h2"><span class="h2-l1">ნებისმიერი ორგანიზაციისთვის, რომელიც</span><span class="h2-l2">მართავს სატრანსპორტო საშუალებებს</span></h2>
     </div>
     <div class="uses reveal">
       <div class="use"><div class="uh"><span class="ui"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="1.8"/><circle cx="18.5" cy="18.5" r="1.8"/></svg></span><b data-i18n="who.u1t">სატრანსპორტო კომპანიები</b></div><p data-i18n="who.u1p">დიდი ავტოპარკის სრული ხედვა და კონტროლი ერთი ეკრანიდან.</p></div>
@@ -771,7 +775,7 @@ var I18N = {
   "intg.i3":{ka:"უერთდება არსებულ GPS მოწყობილობებს, ახალი ტექნიკის გარეშე.",en:"Connects to your existing GPS devices, no new hardware."},
   "intg.i4":{ka:"საკუთარ სისტემებთან დასაკავშირებლად ღია API.",en:"An open API for connecting your own systems."},
   "who.eyebrow":{ka:"ვისთვის",en:"Who it's for"},
-  "who.h2":{ka:'<span class="h2-l1">ნებისმიერი ორგანიზაციისთვის, რომელიც</span><br>მართავს სატრანსპორტო საშუალებებს',en:"Built for anyone managing a fleet"},
+  "who.h2":{ka:'<span class="h2-l1">ნებისმიერი ორგანიზაციისთვის, რომელიც</span><span class="h2-l2">მართავს სატრანსპორტო საშუალებებს</span>',en:"Built for anyone managing a fleet"},
   "who.u1t":{ka:"სატრანსპორტო კომპანიები",en:"Transport companies"},
   "who.u1p":{ka:"დიდი ავტოპარკის სრული ხედვა და კონტროლი ერთი ეკრანიდან.",en:"Full visibility and control over a large fleet from one screen."},
   "who.u2t":{ka:"ლოჯისტიკა და დისტრიბუცია",en:"Logistics and distribution"},
